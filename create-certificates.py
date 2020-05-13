@@ -59,7 +59,6 @@ for record in aRecords:
         # ip is not in list. Add ip and record to list
         ipsInSubnet.append(addr)
         ipHasNames[ip] = [recordName]
-aRecords = ipsInSubnet
 
 cNames = zoneParsed['cname']
 
