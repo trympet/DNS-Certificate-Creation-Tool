@@ -307,7 +307,7 @@ def parse_line(parser, record_token, parsed_records, lastLine):
         # Line is prefixed with blank. Therefore, the owner is the same as that of the previous RR
         # This is the case when two records with the same name have different targets or types.
         # See RFC1034, sect. 3.6.1. Textual expression of RRs
-        
+
         token_ammendment = [lastLine[0]]
         token_ammendment.extend(record_token)
         record_token = token_ammendment
@@ -379,8 +379,6 @@ def parse_lines(text, ignore_invalid=False):
     lastLine = None
     for record_line in record_lines:
         record_token = tokenize_line(record_line)
-        if (len(record_token) == 3):
-            import pdb; breakpoint()
         try:
             json_zone_file = parse_line(parser, record_token, json_zone_file, lastLine)
         except InvalidLineException:
