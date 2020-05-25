@@ -21,44 +21,69 @@ if (Test-Path ".\out\") {
   }
 }
 
-# check arguments
-if (
+# check vars or arguments
+if (Test-Path ".\vars.ps1") {
+  # load vars from external file
+  . ".\vars.ps1"
+
+} elseif (
   [string]::IsNullOrEmpty($args[0]) -or # computername
   [string]::IsNullOrEmpty($args[1]) -or # dns zone
   [string]::IsNullOrEmpty($args[2]) -or # ip range string
   [string]::IsNullOrEmpty($args[3]) -or # rootCA.crt
   [string]::IsNullOrEmpty($args[4]) # rootCA.key
   ) {
+  # missing args
   Exit-Error "Missing computername or dns zone arguments"
+} else {
+  # set vars and args
+  $computer_name = $args[0]
+  $dns_zone = $args[1]
+  $ip_range = $args[2]
+  $rootca_crt = $args[3]
+  $rootca_key = $args[4]
 }
 
-# set vars and args
-$computer_name = $args[0]
-$dns_zone = $args[1]
-$ip_range = $args[2]
-$rootca_crt = $args[3]
-$rootca_key = $args[4]
+
 
 # request zone export on remote machine
 $file_name = "dns-export-" + $dns_zone
-Invoke-command -ComputerName $computer_name -ScriptBlock { "Export-DnsServerZone -Name $dns_zone -FileName $file_name" } | out-null
+$location = "\Windows\System32\dns\" + $file_name
+
+# remove previous export
+Invoke-command -ComputerName $computer_name -ScriptBlock {
+  param($loc)
+  if (Test-Path $loc) {
+    Remove-Item $loc
+  }
+} -ArgumentList $location
+
+# create new zone export
+Invoke-command -ComputerName $computer_name -ScriptBlock {
+  param($zone, $file)
+  Export-DnsServerZone -Name $zone -FileName $file
+} -ArgumentList $dns_zone, $file_name
+
 if (!$?) {
   Exit-Error "Error on DNS zone export."
 }
 
 # copy export to local machine via administrative SMB share
-$remote_computer_export_location = "\\" + $computer_name + "\c$\Windows\System32\dns\" + $file_name
+$remote_computer_export_location = "\\" + $computer_name + "\c$" + $location
 Copy-Item $remote_computer_export_location $file_name
 if (!$?) {
   Exit-Error "Could not copy DNS zone file to local computer."
 }
 
-# get certificate props
-$C = Read-Host -Prompt '[C]'
-$ST = Read-Host -Prompt '[ST]'
-$L = Read-Host -Prompt '[L]'
-$O = Read-Host -Prompt '[O]'
-$E = Read-Host -Prompt '[emailAddress]'
+# check vars or arguments
+if (!(Test-Path ".\vars.ps1")) {
+  # get certificate props
+  $C = Read-Host -Prompt '[C]'
+  $ST = Read-Host -Prompt '[ST]'
+  $L = Read-Host -Prompt '[L]'
+  $O = Read-Host -Prompt '[O]'
+  $E = Read-Host -Prompt '[emailAddress]'
+}
 
 # parse zone, then generate certificates
 $pwd = Get-Location
