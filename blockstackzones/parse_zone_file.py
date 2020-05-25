@@ -15,6 +15,7 @@ import copy
 import datetime
 import time
 import argparse
+import re
 from collections import defaultdict
 
 from .configs import SUPPORTED_RECORDS, DEFAULT_TEMPLATE
@@ -313,8 +314,12 @@ def parse_line(parser, record_token, parsed_records, lastLine):
         record_token = token_ammendment
 
     line = " ".join(record_token)
+    scavenging_age = re.compile(r"\[AGE:[0-9]*\]")
 
     # match parser to record type
+    if len(record_token) >= 2 and bool(scavenging_age.match(record_token[0])) or bool(scavenging_age.match(record_token[1])):
+        # has scavening set. ignore.
+        record_token.pop(1)
     if len(record_token) >= 2 and record_token[1] in SUPPORTED_RECORDS:
         # with no ttl
         record_token = [record_token[1]] + record_token
