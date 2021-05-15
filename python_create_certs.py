@@ -12,6 +12,7 @@ from blockstackzones import parse_zone_file
 from pathlib import Path
 
 ADD_SUFFIX_TO_SAN = True
+CERTIFICATE_DAYS_VALID = 720
 
 # openssl env variables
 pwd = os.path.dirname(os.path.realpath(__file__))
@@ -24,7 +25,6 @@ dnsExportFileName = sys.argv[2]
 ipRangeString = sys.argv[3]
 rootCA = sys.argv[4]
 rootCAKey = sys.argv[5]
-CERTIFICATE_DAYS_VALID = 720
 openSSLConf = {
   'C': sys.argv[10] if len(sys.argv) > 10 else "",
   'ST': sys.argv[9] if len(sys.argv) > 9 else "",
