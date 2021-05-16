@@ -21,10 +21,15 @@
     [System.Management.Automation.Runspaces.AuthenticationMechanism]$Authentication = [System.Management.Automation.Runspaces.AuthenticationMechanism]::Default,
 
     # Certificate info
+    [Parameter(Mandatory=$true)]
     [string]$E,
+    [Parameter(Mandatory=$true)]
     [string]$O,
+    [Parameter(Mandatory=$true)]
     [string]$L,
+    [Parameter(Mandatory=$true)]
     [string]$ST,
+    [Parameter(Mandatory=$true)]
     [string]$C
  )
 
