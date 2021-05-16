@@ -1,18 +1,38 @@
 # DNS-Certificate-Creation-Tool
 This tool allows you to quickly create certificates for an entire DNS zone.   
-The provided PowerShell automates the creation of zone files, and is intended for usage with DNS Server for Windows Server 2016 or later.   
+The provided PowerShell automates the creation of zone files, and is intended for use with DNS Server for Windows Server 2016 or later.   
 
-the Python script is server independent, and can be used as long as you can get your hands on the [zone file](https://en.wikipedia.org/wiki/Zone_file#File_format). The python script is currently referencing the OpenSSL Windows binary that is distributed with the release, but any OpenSSL binary for any platform would do. Please see the license.
 ## Prerequisites
 - Python 3   
-- OpenSSL (Windows binary included)
-## Usage
-If you are using DNS Server for Windows Server, everything should work out of the box, no modification needed.   
-Usage: `powershell get-zone.ps1 <computername> <dns zone> <CIDR ip range> <rootCA.crt> <rootCA.key>`   
-Example: `powershell get-zone.ps1 alice bob.local.example 192.168.43.64/26 rootCA.crt rootCA.key`   
-   
-If you are NOT using DNS Server for Windows Server, you can call the Python script with appropriate arguments, or create your own shell script that does it for you.   
-Currently, the Python script takes the following arguments: `python3 create-certificates.py <dns zone> <zone file name> <CIDR ip range> <rootCA.crt> <rootCA.key> <email address> <organization> <city / locality> <state / province> <country>`   
+- OpenSSL if using Linux or Mac. Windows binary included.
 
-## Notes
-I have modified blockstack_zones to work with Python 3. Therefore, it is included with this distribution. Please see the license.
+## Usage
+```powershell
+./Create-DNSCertificates.ps1
+     [-ComputerName] <String>
+     [-DNSZone] <String>
+     [-IPAddresses] <String>
+     [-Certificate] <String>
+     [-PrivateKey] <String>
+     [[-Credential] <PSCredential>]
+     [[-Authentication] <AuthenticationMechanism>]
+     [-O] <String>
+     [-L] <String>
+     [-ST] <String>
+     [-C] <String>
+     [-E] <String>
+```
+
+If you are using DNS Server for Windows Server, everything should work out of the box, no modification needed.   
+Example:
+```powershell
+./Create-DNSCertificates.ps1 -ComputerName dc-01.corp.contoso.com -DNSZone corp.contoso.com -IPAddresses 10.0.10.0/23 -Certificate contosocorp-ca.crt -PrivateKey contosocorp-ca.key -C US -ST WA -L Redmond -O Contoso
+```
+   
+The certificate and OpenSSL artifacts are placed in the `./out` directory. 
+   
+You can also call the python script directly if you are not using Windows DNS Server.   
+Example:
+```bash
+python3 create-certificates.py <dns zone> <zone file name> <CIDR ip range> <rootCA.crt> <rootCA.key> <email address> <organization> <city / locality> <state / province> <country>
+```
