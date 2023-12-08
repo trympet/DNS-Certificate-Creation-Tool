@@ -53,7 +53,7 @@ $Location = "\Windows\System32\dns\" + $FileName
 
 # create new zone export
 Write-Host "Requesting zone export on remote machine..."
-Invoke-command -ComputerName $ComputerName -Credential $Credential  -Authentication $Authentication -ScriptBlock {
+Invoke-command -ComputerName $ComputerName -Credential $Credential -Authentication $Authentication -ScriptBlock {
   param($zone, $file)
   Export-DnsServerZone -Name $zone -FileName $file
 } -ArgumentList $DNSZone, $FileName
@@ -64,12 +64,18 @@ Write-Host "Zone exported on remote machine. $Location"
 
 
 Write-Host "Copying export to local computer..."
-$RemoteExportDir = "\\" + $ComputerName + "\c$" + $Location
-Copy-Item $RemoteExportDir $FileName
-if (!$?) {
-  Write-Error "Could not copy DNS zone file to local computer."
+$RemoteExportDir = "C:$Location"
+$psSession = New-PSSession -ComputerName $ComputerName -Credential $Credential -Authentication $Authentication
+try {
+  Copy-Item -FromSession $psSession $RemoteExportDir $FileName
+  if (!$?) {
+    Write-Error "Could not copy DNS zone file to local computer." -ErrorAction Stop
+  }
+  Write-Host "Export copied to ./$FileName"
 }
-Write-Host "Export copied to ./$FileName"
+finally {
+  Disconnect-PSSession $psSession
+}
 
 
 Write-Host "Cleaning up export on remote machine..."

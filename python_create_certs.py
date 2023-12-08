@@ -12,7 +12,7 @@ from blockstackzones import parse_zone_file
 from pathlib import Path
 
 ADD_FQDN_TO_SAN = True
-CERTIFICATE_DAYS_VALID = 720
+CERTIFICATE_DAYS_VALID = 3650
 CERTIFICATE_CONFIG_FORMAT_STRING = """
 [req]
 default_bits = 2048
@@ -88,7 +88,7 @@ def create_pem(path: Path):
     pem = ""
     with open(f"{path}/certificate.crt", "r") as cert:
         pem += cert.read()
-    with open(f"{path}/private.key", "r") as key:
+    with open(f"{path}/certificate.key", "r") as key:
         pem += key.read()
     with open(f"{path}/certificate.pem", "w") as out:
         out.write(pem)
@@ -97,7 +97,7 @@ def create_pem(path: Path):
 def openssl_create(base_path: Path, config_path: Path, cert_path, cert_key_path, days, password):
     # key
     openssl = Path("./openssl/openssl")
-    private_key = Path(f"{base_path}/private.key")
+    private_key = Path(f"{base_path}/certificate.key")
     csr = Path(f"{base_path}/request.csr")
     cert = Path(f"{base_path}/certificate.crt")
     print("Creating private key")
